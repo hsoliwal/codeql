@@ -1,11 +1,5 @@
-name: M3 CodeQL
-
-on:
-  push:
-    branches: [main, 'm3/**']
-    paths: ['m3/**', '.github/workflows/m3-codeql.yml']
-  pull_request:
-    paths: ['m3/**', '.github/workflows/m3-codeql.yml']
+# SPDX-FileCopyrightText: 2026 Hitesh Soliwal and Contributors to the Synexia Project
+# SPDX-License-Identifier: MIT
 name: M3 CodeQL evidence
 
 on:
@@ -16,7 +10,7 @@ on:
       - "java/ql/lib/**"
       - "shared/**"
   push:
-    branches: [main]
+    branches: [main, 'm3/**']
     paths:
       - "m3/**"
       - ".github/workflows/m3-codeql.yml"
@@ -99,10 +93,6 @@ jobs:
             m3/tools/target/surefire-reports/
             ${{ runner.temp }}/m3-codeql-verification/
           if-no-files-found: error
-  group: m3-codeql-${{ github.ref }}
-  cancel-in-progress: true
-
-jobs:
   verify:
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -116,8 +106,46 @@ jobs:
           cache-dependency-path: "m3/**/pom.xml"
       - name: Build and test Java modules
         run: mvn -B -ntp -f m3/pom.xml verify
-      - name: Verify recipe snapshot
-        run: mvn -B -ntp -f m3/recipes/pom.xml exec:java -Dexec.args="verify $GITHUB_WORKSPACE"
+      - name: Verify frozen replay and accepted output
+        shell: bash
+        run: |
+          set -euo pipefail
+          baseline="$(mktemp -d "$RUNNER_TEMP/m3-codeql-baseline.XXXXXX")"
+          current="$(mktemp -d "$RUNNER_TEMP/m3-codeql-current.XXXXXX")"
+          receipt="$GITHUB_WORKSPACE/m3/provenance/ordered-atom-pattern-20261115"
+          mvn -B -ntp -f m3/recipes/pom.xml exec:java -Dexec.args="apply \"$baseline\""
+          mvn -B -ntp -f m3/recipes/pom.xml exec:java -Dexec.args="verify \"$baseline\""
+          mvn -B -ntp -f m3/recipes/pom.xml exec:java -Dexec.args="apply \"$baseline\"" | tee "$baseline/replay.log"
+          grep -Fq 'OpenRewrite generated 0 new files; manifest SHA-256 ' "$baseline/replay.log"
+          python3 - "$current" <<'PY'
+          import csv, os, shlex, subprocess, sys
+          from pathlib import Path
+          root = Path(os.environ["GITHUB_WORKSPACE"])
+          manifest = "m3/provenance/ordered-atom-pattern-20261115/manifest.tsv"
+          digest = "m3/provenance/ordered-atom-pattern-20261115/manifest.sha256"
+          for relative in (manifest, digest):
+              file = root / relative
+              if not file.is_file() or any(part.is_symlink() for part in (file, *file.parents)):
+                  raise SystemExit("Non-regular or symlinked passive receipt: " + relative)
+          with (root / manifest).open(encoding="utf-8", newline="") as stream:
+              reader = csv.DictReader(stream, delimiter="\t")
+              if reader.fieldnames != ["path", "sha256", "bytes", "mode"]:
+                  raise SystemExit("Invalid accepted-output manifest header")
+              paths = [row["path"] for row in reader]
+          tracked = subprocess.check_output(
+              ["git", "ls-files", "-z", "--", "m3", ".github/workflows/m3-codeql.yml"], cwd=root
+          ).decode("utf-8").split("\0")
+          expected = sorted(path for path in tracked if path
+              and not path.startswith("m3/recipes/") and path not in (manifest, digest))
+          if paths != expected:
+              raise SystemExit("Accepted-output paths differ from the complete tracked product scope")
+          arguments = shlex.join(["capture", str(root), sys.argv[1], *paths])
+          subprocess.run(["mvn", "-B", "-ntp", "-f", str(root / "m3/recipes/pom.xml"),
+              "exec:java", "-Dexec.args=" + arguments], cwd=root, check=True)
+          PY
+          cmp -- "$receipt/manifest.tsv" "$current/manifest.tsv"
+          cmp -- "$receipt/manifest.sha256" "$current/manifest.sha256"
+          mvn -B -ntp -f m3/recipes/pom.xml exec:java -Dexec.args="verify \"$GITHUB_WORKSPACE\" \"$current\""
       - name: Install the qualified CodeQL CLI
         shell: bash
         run: |
