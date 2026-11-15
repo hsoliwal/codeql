@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "component": "M3 CodeQL",
+  "repository": "https://github.com/hsoliwal/codeql",
+  "upstreamBaseCommit": "2e2b72797673638eaf94772632721d2fa5c42219",
+  "upstreamBaseTree": "8d65e607657df346ee3855fb7adc006e2a9e152c",
+  "implementationLicense": "MIT",
+  "javaRelease": 21,
+  "referenceDocuments": [
+    {
+      "name": "M3Scale(1).txt",
+      "authority": "LOCKED_CANON",
+      "bytes": 15276,
+      "sha256": "5ec31d51207bda02d2f1f9a7fcd940f2ae5e1bfc9f0ef9358139fe62b47f393b"
+    },
+    {
+      "name": "M3ScaleCopy(1).txt",
+      "authority": "EXPANDED_WITNESS",
+      "bytes": 17550,
+      "sha256": "3d227d1872bbf80802f6bb00e233b9e912447efcd3fe899e0668cd68f74bc341"
+    },
+    {
+      "name": "M3ScaleCodingAgent(1).txt",
+      "authority": "DERIVED_DESIGN",
+      "bytes": 59412,
+      "sha256": "c73d6f321717813ea5d95a970ab338dc3c6731020c8725fa87182de187814fdf"
+    }
+  ],
+  "providers": [
+    {
+      "name": "CodeQL CLI",
+      "version": "2.27.4",
+      "engineCommit": "7eb0047c90fffaeb822564a0ac56d585dc871f30",
+      "source": "https://github.com/github/codeql-cli-binaries/releases/tag/v2.27.4",
+      "linuxX64ArchiveSha256": "393bf92b66596141ec93baf9b483f4a350f3749916c922fed0dd63c67706047d",
+      "distribution": "separate; not vendored or relicensed"
+    },
+    {
+      "name": "CodeQL Java libraries",
+      "version": "9.3.5-dev",
+      "source": "java/ql/lib",
+      "revision": "2e2b72797673638eaf94772632721d2fa5c42219",
+      "license": "MIT"
+    },
+    {
+      "name": "OpenRewrite",
+      "version": "8.17.1",
+      "source": "https://github.com/openrewrite/rewrite",
+      "license": "Apache-2.0",
+      "role": "reproducible additive recipe execution"
+    }
+  ],
+  "semanticScope": {
+    "inventory": "regular input files under an explicit source root",
+    "analysis": "Java through CodeQL build-mode none",
+    "evidence": "source callables, partial declared contracts, declared call targets, direct local effects, exported-fact SHA-256 and SimHash review candidates",
+    "admission": "candidate evidence only; no automatic source transformation or promotion"
+  }
+}
