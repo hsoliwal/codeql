@@ -1,0 +1,26 @@
+<!DOCTYPE qhelp PUBLIC "-//Semmle//qhelp//EN" "qhelp.dtd">
+<qhelp>
+<overview>
+<p>This table exports explicitly declared Java source methods with the
+<code>native</code> modifier, at every visibility. It records the Java declaration
+only. It does not resolve native libraries, registered native methods, JNI symbol
+names, C or C++ signatures, calling conventions or ABI compatibility.</p>
+<p>The columns, in order, are <code>callable_id</code>,
+<code>declaring_type</code>, <code>signature</code>, <code>return_type</code>,
+<code>visibility</code>, <code>is_static</code>, <code>source_path</code>,
+<code>start_line</code>, <code>start_column</code>, <code>end_line</code> and
+<code>end_column</code>. The signature contains fully qualified parameter types,
+the return type is the CodeQL display name, and <code>is_static</code> is a
+boolean. Source locations identify the declared name.</p>
+<p>The opaque callable identity uses the same snapshot convention as
+<code>CallableInventory</code>. Paths are relative to the database source root;
+line and column coordinates are one-based and inclusive. Rows are ordered by
+source path, source span and callable identity.</p>
+</overview>
+<recommendation>
+<p>Use these declarations to identify boundaries requiring separate native-code
+and runtime evidence. A matching declaration is neither evidence of a native
+implementation nor a defect. Decode its BQRS results as CSV. This table is
+excluded from the M3 problem-query suite.</p>
+</recommendation>
+</qhelp>

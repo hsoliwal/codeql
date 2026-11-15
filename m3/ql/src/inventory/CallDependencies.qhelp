@@ -1,0 +1,36 @@
+<!DOCTYPE qhelp PUBLIC "-//Semmle//qhelp//EN" "qhelp.dtd">
+<qhelp>
+<overview>
+<p>This table exports statically resolved CodeQL Java source call sites: method
+calls, explicit object creation, and <code>this</code> or <code>super</code>
+constructor invocations. The Java model can include implicit superclass
+constructor invocations. Functional-object creation nodes for lambdas and method
+references are excluded; calls modeled inside their bodies retain their own
+enclosing callable. Extractor-generated invocations of initializer holder methods
+are excluded; source calls within initializer bodies are retained.</p>
+<p>Caller and callee are normalized to source declarations. A virtual call records
+the statically selected declaration, which can be an interface or superclass
+method. It does not enumerate or predict its runtime dispatch targets. Reflection,
+native implementations and unresolved calls are not reconstructed.</p>
+<p>The columns, in order, are <code>caller_id</code>,
+<code>caller_declaring_type</code>, <code>caller_signature</code>,
+<code>callee_id</code>, <code>callee_declaring_type</code>,
+<code>callee_signature</code>, <code>call_kind</code>, <code>source_path</code>,
+<code>start_line</code>, <code>start_column</code>, <code>end_line</code> and
+<code>end_column</code>. Call kinds are <code>method</code>, <code>new</code>,
+<code>this-constructor</code> and <code>super-constructor</code>. Locations are
+call-site locations; implicit calls use their extractor-assigned location.</p>
+<p>Opaque identities combine declaring type, callable kind and signature, adding
+source path and declaration position for source-backed callables. Binary targets
+have semantic identities without a source anchor. These are database-snapshot
+identities, not globally stable binary symbols. Paths are relative to the database
+source root; coordinates are one-based and inclusive. Rows are ordered by source
+path, source span, caller identity, callee identity and call kind.</p>
+</overview>
+<recommendation>
+<p>Use these edges as static dependency evidence with the database's extraction
+coverage in mind. Do not treat them as an exact or complete dynamic call graph.
+Decode BQRS as CSV for downstream processing. This table is excluded from the M3
+problem-query suite.</p>
+</recommendation>
+</qhelp>

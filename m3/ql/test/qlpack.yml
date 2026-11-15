@@ -1,0 +1,9 @@
+name: hsoliwal/m3-java-tests
+version: 0.1.0
+groups: [java, m3, test]
+extractor: java
+tests: .
+dependencies:
+  codeql/java-all: ${workspace}
+  hsoliwal/m3-java-queries: ${workspace}
+warnOnImplicitThis: true

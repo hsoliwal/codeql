@@ -1,0 +1,3 @@
+| m3.fixture.Inventory#method:nativeRead(byte[])@src/main/java/m3/fixture/Inventory.java:11:21 | m3.fixture.Inventory | nativeRead(byte[]) | int | public | false | src/main/java/m3/fixture/Inventory.java | 11 | 21 | 11 | 30 |
+| m3.fixture.Inventory#method:nativeWrite(long)@src/main/java/m3/fixture/Inventory.java:12:32 | m3.fixture.Inventory | nativeWrite(long) | void | protected | true | src/main/java/m3/fixture/Inventory.java | 12 | 32 | 12 | 42 |
+| m3.fixture.Inventory#method:privateNative()@src/main/java/m3/fixture/Inventory.java:13:23 | m3.fixture.Inventory | privateNative() | void | private | false | src/main/java/m3/fixture/Inventory.java | 13 | 23 | 13 | 35 |

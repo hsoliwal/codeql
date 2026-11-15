@@ -1,0 +1,26 @@
+<!DOCTYPE qhelp PUBLIC "-//Semmle//qhelp//EN" "qhelp.dtd">
+<qhelp>
+<overview>
+<p>This opt-in query reports Java <code>NewClassExpr</code> and
+<code>ArrayCreationExpr</code> nodes syntactically contained in a loop, with the
+allocation and loop in the same enclosing callable. Each allocation is reported
+once, including when several nested loops contain it.</p>
+<p>Containment includes loop bodies and headers. A basic-for initializer or an
+enhanced-for iterable expression can run once when a loop is entered; its presence
+here does not mean it runs on every iteration. Unreachable or rarely executed code
+can also be reported.</p>
+<p>An allocation inside a lambda, local-class method or anonymous-class method is
+not attributed to a loop in an enclosing callable. A loop inside that deferred
+body can still produce its own findings. The explicit allocation of an anonymous
+object in the outer loop is included. Implicit functional-object creation for
+lambdas and method references is excluded.</p>
+</overview>
+<recommendation>
+<p>Treat each result as a review candidate. Establish execution frequency,
+allocation rate and application impact through measurement before proposing a
+change. Moving or reusing an object can change identity, state, lifetime,
+exceptions and concurrency behavior; this syntactic query does not prove that any
+such change is safe. It neither tracks allocations through callees nor models
+runtime optimization.</p>
+</recommendation>
+</qhelp>

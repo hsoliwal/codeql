@@ -1,0 +1,2 @@
+| src/main/java/m3/fixture/Policies.java:7:20:7:33 | intern(...) | Review this call to java.lang.String.intern(); assess the string-pool policy and measured workload. |
+| src/main/java/m3/fixture/Policies.java:8:21:8:55 | intern(...) | Review this call to java.lang.String.intern(); assess the string-pool policy and measured workload. |

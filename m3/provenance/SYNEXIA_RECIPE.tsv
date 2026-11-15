@@ -1,0 +1,19 @@
+key	value
+schema_version	1
+task_family	m3-codeql-20261115
+recipe_identity	com.synexia.m3.CodeQlAdditive20261115
+canonical_repository	hsoliwal/com.synexia
+core_recipe_commit	71555e104cf9129e42855e2d0d3ee414ae3d9fc0
+core_execution_receipt	synexia-openrewrite-recipes/crates/m3-codeql-20261115/evidence/core/SDK_EXECUTION.tsv
+core_execution_receipt_sha256	6bea702187b6297b6cd5b26c573d48d494375dca5c3b915209911ce73af16944
+core_text_manifest_sha256	c4e662e12a56c46d8b0748f20961a56fb24fb6f028ecea4021a7431ded49b864
+core_java_manifest_sha256	c9a9ed8ab541700dd5e800d940988541f0b322b001acd8d97f38d01ae3988031
+core_output_files	42
+core_receipt_scope	Exact core product outputs; this passive reference is covered by the final result-only handoff
+execution_lane	MAVEN_OPENREWRITE_SDK
+openrewrite_version	8.17.1
+java_owner_base	91aad1f2c9108e4bb830e73fa265d93555d86041
+target_repository	hsoliwal/codeql
+target_base	2e2b72797673638eaf94772632721d2fa5c42219
+target_verification	Product Java and native CodeQL gates remain distinct from recipe execution
+canonical_promotion	NONE
