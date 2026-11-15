@@ -1,0 +1,8 @@
+name: hsoliwal/m3-java-evidence-tests
+version: 0.1.0
+dependencies:
+  hsoliwal/m3-java-evidence: ${workspace}
+  codeql/java-all: "*"
+extractor: java
+tests: .
+warnOnImplicitThis: true

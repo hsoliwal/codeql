@@ -1,0 +1,6 @@
+type: specs.openrewrite.org/v1beta/recipe
+name: com.synexia.m3.codeql.InstallM3Codeql
+displayName: Install the additive M3 CodeQL evidence integration
+description: Generate the reviewed SHA-256-pinned files and refuse conflicting existing destinations.
+recipeList:
+  - com.synexia.m3.codeql.recipe.M3CodeqlSnapshotRecipe

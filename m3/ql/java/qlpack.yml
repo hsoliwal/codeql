@@ -1,0 +1,5 @@
+name: hsoliwal/m3-java-evidence
+version: 0.1.0
+dependencies:
+  codeql/java-all: "*"
+warnOnImplicitThis: true
