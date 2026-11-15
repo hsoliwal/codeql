@@ -1,0 +1,29 @@
+<!DOCTYPE qhelp PUBLIC "-//Semmle//qhelp//EN" "qhelp.dtd">
+<qhelp>
+<overview>
+<p>This table exports explicitly declared public and protected Java source methods
+and constructors, including implicitly public interface methods. Default
+constructors, initializer holder methods, functional-expression methods and
+compiler-generated callables are excluded. A declaration is emitted once through
+its source declaration, rather than once per generic specialization.</p>
+<p>The columns, in order, are <code>callable_id</code>, <code>kind</code>,
+<code>declaring_type</code>, <code>signature</code>, <code>return_type</code>,
+<code>visibility</code>, <code>source_path</code>, <code>start_line</code>,
+<code>start_column</code>, <code>end_line</code> and <code>end_column</code>.
+The signature includes fully qualified parameter types; the return type is the
+CodeQL display name. Declaration locations identify the declared name using
+one-based, inclusive line and column coordinates.</p>
+<p>The opaque callable identity combines declaring type, callable kind and
+signature with its source path and declaration position. This disambiguates
+overloads and source-local declarations in a database snapshot. It can change
+after source edits. Paths are relative to the database source root. Rows are
+ordered by source path, source span and callable identity.</p>
+</overview>
+<recommendation>
+<p>Use the table as source evidence for API review and downstream joins. The
+visibility column is declaration visibility: it does not assert that the
+declaring type is externally accessible. This is not a complete API or ABI
+compatibility model. Decode its BQRS results as CSV; it is deliberately excluded
+from the M3 problem-query suite.</p>
+</recommendation>
+</qhelp>

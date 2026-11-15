@@ -1,0 +1,13 @@
+| src/main/java/m3/fixture/Policies.java:19:14:19:25 | new Object(...) | Review this explicit allocation syntactically inside a loop in the same callable; runtime cost and safe changes require measurement. |
+| src/main/java/m3/fixture/Policies.java:20:14:20:23 | new int[] | Review this explicit allocation syntactically inside a loop in the same callable; runtime cost and safe changes require measurement. |
+| src/main/java/m3/fixture/Policies.java:22:27:26:7 | new (...) | Review this explicit allocation syntactically inside a loop in the same callable; runtime cost and safe changes require measurement. |
+| src/main/java/m3/fixture/Policies.java:34:18:34:29 | new Object(...) | Review this explicit allocation syntactically inside a loop in the same callable; runtime cost and safe changes require measurement. |
+| src/main/java/m3/fixture/Policies.java:39:14:39:25 | new Object(...) | Review this explicit allocation syntactically inside a loop in the same callable; runtime cost and safe changes require measurement. |
+| src/main/java/m3/fixture/Policies.java:43:14:43:25 | new Object(...) | Review this explicit allocation syntactically inside a loop in the same callable; runtime cost and safe changes require measurement. |
+| src/main/java/m3/fixture/Policies.java:45:25:45:53 | new Object[] | Review this explicit allocation syntactically inside a loop in the same callable; runtime cost and safe changes require measurement. |
+| src/main/java/m3/fixture/Policies.java:45:40:45:51 | new Object(...) | Review this explicit allocation syntactically inside a loop in the same callable; runtime cost and safe changes require measurement. |
+| src/main/java/m3/fixture/Policies.java:46:14:46:25 | new Object(...) | Review this explicit allocation syntactically inside a loop in the same callable; runtime cost and safe changes require measurement. |
+| src/main/java/m3/fixture/Policies.java:48:24:48:35 | new Object(...) | Review this explicit allocation syntactically inside a loop in the same callable; runtime cost and safe changes require measurement. |
+| src/main/java/m3/fixture/Policies.java:51:12:51:23 | new Object(...) | Review this explicit allocation syntactically inside a loop in the same callable; runtime cost and safe changes require measurement. |
+| src/main/java/m3/fixture/Policies.java:54:35:54:46 | new Object(...) | Review this explicit allocation syntactically inside a loop in the same callable; runtime cost and safe changes require measurement. |
+| src/main/java/m3/fixture/Policies.java:58:16:58:27 | new Object(...) | Review this explicit allocation syntactically inside a loop in the same callable; runtime cost and safe changes require measurement. |

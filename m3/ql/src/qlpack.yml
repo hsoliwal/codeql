@@ -1,0 +1,8 @@
+name: hsoliwal/m3-java-queries
+version: 0.1.0
+groups: [java, m3]
+extractor: java
+dependencies:
+  codeql/java-all: ${workspace}
+defaultSuiteFile: m3-java.qls
+warnOnImplicitThis: true

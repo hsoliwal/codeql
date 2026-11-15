@@ -1,0 +1,17 @@
+<!DOCTYPE qhelp PUBLIC "-//Semmle//qhelp//EN" "qhelp.dtd">
+<qhelp>
+<overview>
+<p>This opt-in review query identifies Java source calls whose resolved target is
+the parameterless <code>java.lang.String.intern()</code> method. It uses the
+CodeQL Java method binding, so comments, string literals and unrelated methods
+named <code>intern</code> do not match.</p>
+<p>A finding records use of the API. It does not establish a security defect,
+incorrect result, memory leak or performance regression.</p>
+</overview>
+<recommendation>
+<p>Review the intended string-pool policy and measure the application's workload.
+Record intentional use when appropriate. Before changing a call, consider whether
+the program relies on canonical string identity or reference equality. This query
+does not supply an automatic fix.</p>
+</recommendation>
+</qhelp>
