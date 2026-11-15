@@ -1,0 +1,12 @@
+**/target/
+**/.cache/
+**/*.actual
+**/*.bqrs
+**/*.qlo
+**/*.qlx
+**/*.qlx.lock
+**/*.qlx.log
+**/*.trap
+**/*.trap.gz
+**/*.testproj
+**/*.testproj/**

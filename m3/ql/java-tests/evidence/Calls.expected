@@ -1,0 +1,7 @@
+| Fixture.java | java.lang | <anonymous class> | run() | call/static | m3fixture.Fixture#set(int) | 32 | 39 | 32 | 50 |
+| Fixture.java | m3fixture | m3fixture.Fixture | Fixture() | call/static | java.lang.Object#Object() | 6 | 12 | 6 | 18 |
+| Fixture.java | m3fixture | m3fixture.Fixture | lambda() | call/static | <anonymous class>#() | 32 | 21 | 32 | 26 |
+| Fixture.java | m3fixture | m3fixture.Fixture | overload(int) | call/static | m3fixture.Fixture#arithmetic(int) | 9 | 16 | 9 | 23 |
+| Fixture.java | m3fixture | m3fixture.Fixture | throwing() | call/static | java.lang.IllegalStateException#IllegalStateException() | 25 | 17 | 25 | 24 |
+| Fixture.java | m3fixture | m3fixture.Fixture$Nested | Nested() | call/static | java.lang.Object#Object() | 34 | 25 | 34 | 30 |
+| Fixture.java | m3fixture | m3fixture.Fixture$Nested | call(m3fixture.Fixture) | call/static | m3fixture.Fixture#overload(int) | 35 | 20 | 35 | 23 |
