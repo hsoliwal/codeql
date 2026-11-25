@@ -11,9 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 final class ProcessRunner {
     private static final long DESCENDANT_EXIT_GRACE_MILLIS = 1000;
@@ -21,9 +19,12 @@ final class ProcessRunner {
     /**
      * On Windows the JDK joins the argument list into one command line. Its default ("ambiguous") mode wraps arguments
      * that contain spaces in quotes but does not escape embedded double quotes, so the child splits such an argument.
-     * The JDK's strict mode escapes them by the Windows argument rules. The property is read on every
-     * {@code ProcessBuilder.start()}, so enabling it before the first launch keeps every argument literal; an explicit
-     * operator setting is respected.
+     * The JDK's strict mode escapes embedded double quotes and the backslashes before them by the Windows argument
+     * rules. It does not preserve an argument that already starts and ends with a double quote (that argument is passed
+     * through as written, so the child receives it without the outer quotes) and it rejects such an argument if it also
+     * contains a double quote inside. Plan arguments are flags and native paths, which never take that form. The
+     * property is read on every {@code ProcessBuilder.start()}, so enabling it before the first launch is sufficient; an
+     * explicit operator setting is respected.
      */
     private static final String STRICT_WINDOWS_ARGUMENTS = "jdk.lang.Process.allowAmbiguousCommands";
 
@@ -49,6 +50,8 @@ final class ProcessRunner {
         Integer exitCode = null;
         String detail;
         boolean interrupted = false;
+        // An interrupt consumed by a bounded cleanup wait is restored before returning, on every path.
+        boolean deferredInterrupt = false;
         Set<ProcessHandle> descendants = new CopyOnWriteArraySet<>();
         try {
             for (Path artifact : step.outputs()) {
@@ -72,18 +75,20 @@ final class ProcessRunner {
                 }
             }
             if (!complete) {
-                terminate(process, descendants);
+                deferredInterrupt |= terminate(process, descendants);
                 state = State.TIMED_OUT;
                 detail = "Wall-clock timeout after " + timeout.toMillis() + " ms; process tree termination requested.";
             } else {
                 exitCode = process.exitValue();
+                deferredInterrupt |= awaitProcessObject(process);
                 state = exitCode == 0 ? State.PASSED : State.FAILED;
                 detail = "Process exit code " + exitCode + ".";
                 // A descendant still tearing down (on Windows, the console host of a console child) gets a bounded
-                // grace period to exit on its own; a descendant that outlives it is a leaked process tree.
-                waitBriefly(new ArrayList<>(descendants), DESCENDANT_EXIT_GRACE_MILLIS);
+                // grace period to exit on its own; a descendant that outlives it is a leaked process tree. The wait
+                // returns at once when no descendant is alive.
+                deferredInterrupt |= waitBriefly(new ArrayList<>(descendants), DESCENDANT_EXIT_GRACE_MILLIS);
                 if (descendants.stream().anyMatch(ProcessHandle::isAlive)) {
-                    terminate(process, descendants);
+                    deferredInterrupt |= terminate(process, descendants);
                     state = State.FAILED;
                     detail = "Process exited with live descendants; process tree termination requested.";
                 }
@@ -98,11 +103,11 @@ final class ProcessRunner {
         } catch (InterruptedException e) {
             interrupted = true;
             Thread.interrupted();
-            if (process != null) terminate(process, descendants);
+            if (process != null) deferredInterrupt |= terminate(process, descendants);
             state = State.INTERRUPTED;
             detail = "Interrupted; process tree termination requested.";
         } catch (IOException | RuntimeException e) {
-            if (process != null) terminate(process, descendants);
+            if (process != null) deferredInterrupt |= terminate(process, descendants);
             state = process == null ? State.BLOCKED : State.FAILED;
             detail = e.toString();
             Files.writeString(stderr, detail + "\n", StandardOpenOption.APPEND);
@@ -111,57 +116,72 @@ final class ProcessRunner {
                 try { Runtime.getRuntime().removeShutdownHook(shutdownHook); }
                 catch (IllegalStateException | SecurityException ignored) { /* Shutdown is already in progress. */ }
             }
-            if (interrupted) Thread.currentThread().interrupt();
+            if (interrupted || deferredInterrupt) Thread.currentThread().interrupt();
         }
         return new Result(step.name(), state, exitCode, TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start),
                 PathSafety.relative(output, stdout), PathSafety.relative(output, stderr), detail);
     }
 
-    private static void terminate(Process process, Set<ProcessHandle> known) {
+    /** Terminates the process tree; returns whether an interrupt arrived during the bounded waits. */
+    private static boolean terminate(Process process, Set<ProcessHandle> known) {
+        boolean interrupted = false;
         known.addAll(process.descendants().toList());
         List<ProcessHandle> children = new ArrayList<>(known);
         java.util.Collections.reverse(children);
         children.forEach(ProcessHandle::destroy);
-        waitBriefly(children, 200);
+        interrupted |= waitBriefly(children, 200);
         children.stream().filter(ProcessHandle::isAlive).forEach(ProcessHandle::destroyForcibly);
-        waitBriefly(children, 500);
+        interrupted |= waitBriefly(children, 500);
         process.destroy();
         try { process.waitFor(200, TimeUnit.MILLISECONDS); }
-        catch (InterruptedException e) { Thread.interrupted(); }
+        catch (InterruptedException e) { interrupted = true; }
         if (process.isAlive()) {
             process.destroyForcibly();
             try { process.waitFor(500, TimeUnit.MILLISECONDS); }
-            catch (InterruptedException e) { Thread.interrupted(); }
+            catch (InterruptedException e) { interrupted = true; }
         }
+        interrupted |= awaitProcessObject(process);
         // A child started while the tree was being terminated was not in the earlier snapshot; sweep once more
         // after the root can no longer start processes.
         List<ProcessHandle> late = process.descendants().filter(ProcessHandle::isAlive).toList();
         late.forEach(ProcessHandle::destroyForcibly);
         known.addAll(late);
-        waitBriefly(late, 500);
+        interrupted |= waitBriefly(late, 500);
+        return interrupted;
     }
 
     /**
-     * Waits until every handle has exited or the deadline passes. It waits on {@link ProcessHandle#onExit()} rather than
-     * polling {@link ProcessHandle#isAlive()}: on Windows {@code isAlive()} reads the exit code, which is set as soon as
-     * termination starts, while the process still holds inherited handles (such as the step logs) until it has fully
-     * exited and its process object is signalled.
+     * Once the exit code is set, waits for the process object itself. On Windows the exit code is set when termination
+     * starts, but the process keeps its handles, including the inherited step-log handles, until its process object is
+     * signalled. {@code isAlive()}, {@code onExit()} and the timed {@code waitFor} all return as soon as the exit code is
+     * set; only the untimed {@link Process#waitFor()} waits for the signal. It is called only after the exit code is set,
+     * so the wait covers just the remaining teardown. Returns whether an interrupt had to be deferred.
      */
-    private static void waitBriefly(List<ProcessHandle> handles, long millis) {
-        long deadline = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(millis);
-        for (ProcessHandle handle : handles) {
-            while (true) {
-                long remaining = deadline - System.nanoTime();
-                if (remaining <= 0) return;
-                try {
-                    handle.onExit().get(remaining, TimeUnit.NANOSECONDS);
-                    break;
-                } catch (InterruptedException e) {
-                    Thread.interrupted();
-                } catch (ExecutionException | TimeoutException e) {
-                    break;
-                }
+    private static boolean awaitProcessObject(Process process) {
+        if (process.isAlive()) return false;
+        boolean interrupted = Thread.interrupted();
+        while (true) {
+            try {
+                process.waitFor();
+                return interrupted;
+            } catch (InterruptedException e) {
+                interrupted = true;
             }
         }
+    }
+
+    /**
+     * Polls until no handle is alive or the deadline passes; returns at once if none is alive. This is a bounded best
+     * effort for descendants: on Windows {@code isAlive()} turns false once the exit code is set, which can be before
+     * the process has closed its handles. Returns whether an interrupt arrived while waiting, for the caller to restore.
+     */
+    private static boolean waitBriefly(List<ProcessHandle> handles, long millis) {
+        long deadline = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(millis);
+        boolean interrupted = false;
+        while (handles.stream().anyMatch(ProcessHandle::isAlive) && System.nanoTime() < deadline) {
+            try { Thread.sleep(10); }
+            catch (InterruptedException e) { interrupted = true; }
+        }
+        return interrupted;
     }
 }
