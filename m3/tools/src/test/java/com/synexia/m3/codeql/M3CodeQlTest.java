@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.api.condition.EnabledOnOs;
@@ -20,6 +21,15 @@ import org.junit.jupiter.api.condition.OS;
 
 class M3CodeQlTest {
     @TempDir Path temp;
+
+    /**
+     * The runner canonicalizes its root, output and database with {@code toRealPath()} before planning, so expected paths
+     * must be built from the canonical temporary directory. A Windows runner's temp path contains an 8.3 short name
+     * ({@code C:\Users\RUNNER~1\...}) and macOS links {@code /var} to {@code /private/var}.
+     */
+    @BeforeEach void useCanonicalTemporaryDirectory() throws IOException {
+        temp = temp.toRealPath();
+    }
 
     @Test void inventoryIsSortedStableAndUsesZeroBasedDisjointShards() throws Exception {
         Path root = Files.createDirectory(temp.resolve("queries"));

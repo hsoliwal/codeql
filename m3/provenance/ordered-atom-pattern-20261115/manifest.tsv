@@ -82,9 +82,9 @@ m3/tools/src/main/java/com/synexia/m3/codeql/CliOptions.java	a0ba9cdd407230b35cd
 m3/tools/src/main/java/com/synexia/m3/codeql/CodeQlPlan.java	7b3997fe7eb142262b9243a62b198bc1bb8b9726c6ea42f4793d0d94e2110c54	9296	100644
 m3/tools/src/main/java/com/synexia/m3/codeql/M3CodeQl.java	2499a21d7f762076a4169617a54e701e697987f2aaa04e9005f221273968d3c0	4980	100644
 m3/tools/src/main/java/com/synexia/m3/codeql/PathSafety.java	fe74bfd434ba1529785fdd932dc3f2f2249cf18f6999100aabb6f87e372bb2dd	4241	100644
-m3/tools/src/main/java/com/synexia/m3/codeql/ProcessRunner.java	40c0f2e30d43f88fe8f2fc3dd628f67c53c3edb043b49fd343e06377188c436a	6110	100644
+m3/tools/src/main/java/com/synexia/m3/codeql/ProcessRunner.java	e994af96c27c61a8911de39431a78ad0b8596a1d7e6c585747e0d869cc05da7e	8555	100644
 m3/tools/src/main/java/com/synexia/m3/codeql/QueryInventory.java	35389f1b70c4263316fe6aba7ac50d394684bb3fb8986f93f3fa4036ba9a1522	8542	100644
 m3/tools/src/main/java/com/synexia/m3/codeql/RunEvidence.java	0c333baca007517906549f8a3d7dbf0fe49b4674ebf73dafbb908a4daf3eb065	9769	100644
 m3/tools/src/main/java/com/synexia/m3/codeql/Tsv.java	c8f29d788228da9d16cecd596afaddee8adb53aa7db270a689fdcd7a4d13bc4e	2278	100644
-m3/tools/src/test/java/com/synexia/m3/codeql/M3CodeQlTest.java	4a60b602c3310220362f74fb66c992829f1571bfc868cffc952c3193fe354ef2	18539	100644
-m3/tools/src/test/java/com/synexia/m3/codeql/ProcessRunnerTest.java	3c9f25749ee756a68c522a5929f13d04cb57fc0db7d89fe5c6f76fe36f11df19	6733	100644
+m3/tools/src/test/java/com/synexia/m3/codeql/M3CodeQlTest.java	12392ecb49a0b6319eca3fcd65fed1cc2f64bb145c1e5cb1e00e56cf3319e3eb	19045	100644
+m3/tools/src/test/java/com/synexia/m3/codeql/ProcessRunnerTest.java	902da47886a4a55b14d4181aa1085be4dbe4936a63433c48cc731bd08bbe26a4	7014	100644
