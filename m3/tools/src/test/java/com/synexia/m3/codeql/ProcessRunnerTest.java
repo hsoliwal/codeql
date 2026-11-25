@@ -3,6 +3,7 @@ package com.synexia.m3.codeql;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
@@ -110,7 +111,12 @@ class ProcessRunnerTest {
     public static class TestProcess {
         public static void main(String[] args) throws Exception {
             switch (args[0]) {
-                case "echo" -> { System.out.print(args[1]); System.err.print("error stream"); }
+                case "echo" -> {
+                    // Write UTF-8 explicitly: a redirected Windows stdout otherwise uses the ANSI code page.
+                    System.out.write(args[1].getBytes(StandardCharsets.UTF_8));
+                    System.out.flush();
+                    System.err.print("error stream");
+                }
                 case "fail" -> { System.err.println("deliberate failure"); System.exit(7); }
                 case "spawn" -> {
                     Process child = new ProcessBuilder(java(), "-XX:-UsePerfData", "-cp",
